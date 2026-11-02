@@ -1,0 +1,40 @@
+import itertools
+
+def evaluate_kb(p, q):
+    return (not p or q) and p
+
+def evaluate_alpha(p, q):
+    return q
+
+def truth_table_enumeration():
+    symbols = ['P', 'Q']
+    print(f"{'Model':<15} | {'KB':<6} | {'Alpha':<6} | {'Evaluation'}")
+    print("-" * 55)
+    
+    entails = True
+    for values in itertools.product([True, False], repeat=len(symbols)):
+        model = dict(zip(symbols, values))
+        p_val = model['P']
+        q_val = model['Q']
+        
+        kb = evaluate_kb(p_val, q_val)
+        alpha = evaluate_alpha(p_val, q_val)
+        
+        model_str = f"P={p_val}, Q={q_val}"
+        
+        if kb:
+            if not alpha:
+                entails = False
+                eval_str = "KB is T, Alpha is F (Violates Entailment)"
+            else:
+                eval_str = "KB is T, Alpha is T"
+        else:
+            eval_str = "KB is F (Ignored)"
+            
+        print(f"{model_str:<15} | {str(kb):<6} | {str(alpha):<6} | {eval_str}")
+        
+    print("-" * 55)
+    print(f"Result: Knowledge Base {'does' if entails else 'does NOT'} entail the Query.")
+
+if __name__ == "__main__":
+    truth_table_enumeration()
