@@ -1,0 +1,110 @@
+class ForwardChainingKB:
+    def __init__(self):
+        self.facts = set()
+        self.rules = []
+
+    def add_fact(self, fact):
+        self.facts.add(fact)
+        print(f"Added initial fact: {fact}")
+
+    def add_rule(self, premises, conclusion):
+       
+        self.rules.append((premises, conclusion))
+
+    def forward_chain(self, query):
+        print("\n--- Starting Forward Chaining Inference ---")
+        inferred = True
+        iteration = 1
+        
+        while inferred:
+            print(f"\nIteration {iteration}:")
+            inferred = False
+            for premises, conclusion in self.rules:
+                bindings_list = self.match_premises(premises, self.facts)
+                for bindings in bindings_list:
+                    new_conclusion = self.substitute(conclusion, bindings)
+                    if new_conclusion not in self.facts:
+                        self.facts.add(new_conclusion)
+                        print(f"  -> Inferred new fact: {new_conclusion}")
+                        inferred = True
+                        if new_conclusion == query:
+                            print(f"\n SUCCESS: Query '{query}' successfully proved!")
+                            return True
+            iteration += 1
+            
+        print(f"\nQuery '{query}' could not be proved.")
+        return query in self.facts
+
+    def match_premises(self, premises, facts):
+    
+        return self._match_recursive(premises, list(facts), 0, {})
+
+    def _match_recursive(self, premises, facts, index, current_bindings):
+        if index == len(premises):
+            return [current_bindings]
+        
+        results = []
+        premise = premises[index]
+        p_name, p_args = premise[0], premise[1]
+
+        for fact in facts:
+            f_name, f_args = fact[0], fact[1]
+            if p_name == f_name and len(p_args) == len(f_args):
+                match = True
+                new_bindings = current_bindings.copy()
+                for p_arg, f_arg in zip(p_args, f_args):
+                    if p_arg.islower():  
+                        if p_arg in new_bindings and new_bindings[p_arg] != f_arg:
+                            match = False
+                            break
+                        new_bindings[p_arg] = f_arg
+                    else:  
+                        if p_arg != f_arg:
+                            match = False
+                            break
+                if match:
+                    results.extend(self._match_recursive(premises, facts, index + 1, new_bindings))
+        return results
+
+    def substitute(self, conclusion, bindings):
+        c_name, c_args = conclusion
+        new_args = [bindings.get(arg, arg) for arg in c_args]
+        return (c_name, tuple(new_args))
+
+
+
+kb = ForwardChainingKB()
+
+print("--- Initializing Knowledge Base ---")
+
+kb.add_fact(("American", ("Robert",)))
+
+kb.add_fact(("Enemy", ("A", "America")))
+
+
+kb.add_fact(("Missile", ("T1",)))
+kb.add_fact(("Owns", ("A", "T1")))
+
+print("\n--- Adding Inference Rules ---")
+
+kb.add_rule([("Missile", ("x",))], ("Weapon", ("x",)))
+
+
+kb.add_rule([("Enemy", ("x", "America"))], ("Hostile", ("x",)))
+
+
+kb.add_rule([("Missile", ("x",)), ("Owns", ("A", "x"))], ("Sells", ("Robert", "x", "A")))
+
+
+kb.add_rule(
+    [
+        ("American", ("p",)),
+        ("Weapon", ("q",)),
+        ("Sells", ("p", "q", "r")),
+        ("Hostile", ("r",)),
+    ],
+    ("Criminal", ("p",)),
+)
+
+query = ("Criminal", ("Robert",))
+kb.forward_chain(query)
