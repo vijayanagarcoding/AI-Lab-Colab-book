@@ -1,0 +1,80 @@
+def unify(psi1, psi2):
+    if is_var_or_const(psi1) or is_var_or_const(psi2):
+        if psi1 == psi2:
+            return "NIL"
+        elif is_variable(psi1):
+            if occurs(psi1, psi2):
+                return "FAILURE"
+            return {psi1: psi2}
+        elif is_variable(psi2):
+            if occurs(psi2, psi1):
+                return "FAILURE"
+            return {psi2: psi1}
+        else:
+            return "FAILURE"
+    
+    if get_predicate(psi1) != get_predicate(psi2):
+        return "FAILURE"
+        
+    args1 = get_args(psi1)
+    args2 = get_args(psi2)
+    
+    if len(args1) != len(args2):
+        return "FAILURE"
+        
+    subst = "NIL"
+    l1 = list(args1)
+    l2 = list(args2)
+    
+    for i in range(len(l1)):
+        s = unify(l1[i], l2[i])
+        if s == "FAILURE":
+            return "FAILURE"
+        if s != "NIL":
+            l1 = apply_subst_list(s, l1[i+1:])
+            l2 = apply_subst_list(s, l2[i+1:])
+            subst = compose_subst(s, subst)
+            
+    return subst
+
+def is_variable(x):
+    return isinstance(x, str) and x.islower() and len(x) == 1
+
+def is_constant(x):
+    return isinstance(x, str) and not is_variable(x)
+
+def is_var_or_const(x):
+    return not isinstance(x, tuple)
+
+def occurs(var, expr):
+    if var == expr:
+        return True
+    if isinstance(expr, tuple):
+        return any(occurs(var, arg) for arg in expr[1])
+    return False
+
+def get_predicate(expr):
+    return expr[0]
+
+def get_args(expr):
+    return expr[1]
+
+def apply_subst_term(s, term):
+    if s == "NIL" or not isinstance(s, dict):
+        return term
+    if is_variable(term) and term in s:
+        return apply_subst_term(s, s[term])
+    if isinstance(term, tuple):
+        pred, args = term
+        return (pred, [apply_subst_term(s, arg) for arg in args])
+    return term
+
+def apply_subst_list(s, lst):
+    return [apply_subst_term(s, item) for item in lst]
+
+def compose_subst(s, subst):
+    if subst == "NIL":
+        return s
+    new_subst = {k: apply_subst_term(s, v) for k, v in subst.items()}
+    new_subst.update(s)
+    return new_subst
