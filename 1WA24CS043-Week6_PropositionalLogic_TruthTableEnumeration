@@ -38,3 +38,12 @@ def truth_table_enumeration():
 
 if __name__ == "__main__":
     truth_table_enumeration()
+
+Model           | KB     | Alpha  | Evaluation
+-------------------------------------------------------
+P=True, Q=True  | True   | True   | KB is T, Alpha is T
+P=True, Q=False | False  | False  | KB is F (Ignored)
+P=False, Q=True | False  | True   | KB is F (Ignored)
+P=False, Q=False | False  | False  | KB is F (Ignored)
+-------------------------------------------------------
+Result: Knowledge Base does entail the Query.
