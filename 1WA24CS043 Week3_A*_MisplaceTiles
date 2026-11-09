@@ -160,3 +160,18 @@ if __name__ == "__main__":
     astar_path, astar_depth = solve_astar(initial_board)
     print(f"A* Solution    : Moves={len(astar_path)} | Depth={astar_depth}")
     print(f"Moves          : {' -> '.join(astar_path)}")
+
+--- INITIAL BOARD ---
+1 2 3
+4 _ 6
+7 5 8
+
+DFS Solution   : Moves=10 | Depth=10
+Moves          : R -> D -> L -> U -> R -> D -> L -> U -> R -> D
+
+IDS Solution   : Moves=2 | Depth=2
+Moves          : D -> R
+
+A* Solution    : Moves=2 | Depth=2
+Moves          : D -> R
+
