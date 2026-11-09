@@ -64,8 +64,28 @@ def simulated_annealing(n=8, max_iter=20000, initial_temp=100.0, cooling_rate=0.
                     
     return current
 
-if __name__ == "__main__":
-    print("=== 8-QUEENS SIMULATED ANNEALING ===")
-    final_state = simulated_annealing(n=8)
-    print("Final Solution Board Configuration:")
-    print_board(final_state)
+=== 8-QUEENS SIMULATED ANNEALING ===
+--- Initial Random State (Cost: 15) ---
+. . . . . . . .
+. . . . . . . .
+. . Q . Q . . .
+. . . Q . . . .
+Q . . . . . Q Q
+. Q . . . Q . .
+. . . . . . . .
+. . . . . . . .
+Cost: 15
+
+Iteration 0: Temp = 99.5000, Current Cost = 12
+Solution found at iteration 1101!
+Final Solution Board Configuration:
+. . . . Q . . .
+. . Q . . . . .
+Q . . . . . . .
+. . . . . Q . .
+. . . . . . . Q
+. Q . . . . . .
+. . . Q . . . .
+. . . . . . Q .
+Cost: 0
+
