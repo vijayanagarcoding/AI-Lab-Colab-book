@@ -64,3 +64,119 @@ if __name__ == "__main__":
     print("=== N-QUEENS HILL CLIMBING ===")
     solved_board = hill_climbing(initial_4q)
     print(f"Final Solution Board: {solved_board}")
+
+=== N-QUEENS HILL CLIMBING ===
+--- Initial State ---
+Q . . .
+. Q . .
+. . Q .
+. . . Q
+Cost (Attacking Pairs): 6
+
+Step 1 (Cost: 4):
+. . . .
+Q Q . .
+. . Q .
+. . . Q
+Cost (Attacking Pairs): 4
+
+Step 2 (Cost: 2):
+. Q . .
+Q . . .
+. . Q .
+. . . Q
+Cost (Attacking Pairs): 2
+
+Stuck in a local minimum. Restarting with a new random configuration...
+. . . .
+Q Q Q Q
+. . . .
+. . . .
+Cost (Attacking Pairs): 6
+
+Step 3 (Cost: 4):
+Q . . .
+. Q Q Q
+. . . .
+. . . .
+Cost (Attacking Pairs): 4
+
+Step 4 (Cost: 2):
+Q . . .
+. . Q Q
+. Q . .
+. . . .
+Cost (Attacking Pairs): 2
+
+Step 5 (Cost: 1):
+Q . . .
+. . . Q
+. Q . .
+. . Q .
+Cost (Attacking Pairs): 1
+
+Stuck in a local minimum. Restarting with a new random configuration...
+. . Q .
+. Q . .
+Q . . .
+. . . Q
+Cost (Attacking Pairs): 4
+
+Step 6 (Cost: 2):
+. Q Q .
+. . . .
+Q . . .
+. . . Q
+Cost (Attacking Pairs): 2
+
+Step 7 (Cost: 1):
+. Q . .
+. . Q .
+Q . . .
+. . . Q
+Cost (Attacking Pairs): 1
+
+Stuck in a local minimum. Restarting with a new random configuration...
+. . . Q
+Q . . .
+. . Q .
+. Q . .
+Cost (Attacking Pairs): 1
+
+Stuck in a local minimum. Restarting with a new random configuration...
+. . . .
+. . . Q
+. Q . .
+Q . Q .
+Cost (Attacking Pairs): 3
+
+Step 8 (Cost: 1):
+Q . . .
+. . . Q
+. Q . .
+. . Q .
+Cost (Attacking Pairs): 1
+
+Stuck in a local minimum. Restarting with a new random configuration...
+. . . .
+. . . Q
+Q . Q .
+. Q . .
+Cost (Attacking Pairs): 5
+
+Step 9 (Cost: 2):
+. Q . .
+. . . Q
+Q . Q .
+. . . .
+Cost (Attacking Pairs): 2
+
+Step 10 (Cost: 0):
+. Q . .
+. . . Q
+Q . . .
+. . Q .
+Cost (Attacking Pairs): 0
+
+Goal state reached successfully in 10 steps!
+Final Solution Board: [2, 0, 3, 1]
