@@ -108,3 +108,25 @@ kb.add_rule(
 
 query = ("Criminal", ("Robert",))
 kb.forward_chain(query)
+
+--- Initializing Knowledge Base ---
+Added initial fact: ('American', ('Robert',))
+Added initial fact: ('Enemy', ('A', 'America'))
+Added initial fact: ('Missile', ('T1',))
+Added initial fact: ('Owns', ('A', 'T1'))
+
+--- Adding Inference Rules ---
+
+--- Starting Forward Chaining Inference ---
+
+Iteration 1:
+  -> Inferred new fact: ('Weapon', ('T1',))
+  -> Inferred new fact: ('Hostile', ('A',))
+  -> Inferred new fact: ('Sells', ('Robert', 'T1', 'A'))
+  -> Inferred new fact: ('Criminal', ('Robert',))
+
+ SUCCESS: Query '('Criminal', ('Robert',))' successfully proved!
+True
+
+
+
