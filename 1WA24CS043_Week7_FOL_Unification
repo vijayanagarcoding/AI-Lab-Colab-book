@@ -12,29 +12,30 @@ def unify(psi1, psi2):
             return {psi2: psi1}
         else:
             return "FAILURE"
-    
+
     if get_predicate(psi1) != get_predicate(psi2):
         return "FAILURE"
-        
+
     args1 = get_args(psi1)
     args2 = get_args(psi2)
-    
+
     if len(args1) != len(args2):
         return "FAILURE"
-        
+
     subst = "NIL"
     l1 = list(args1)
     l2 = list(args2)
-    
+
     for i in range(len(l1)):
         s = unify(l1[i], l2[i])
         if s == "FAILURE":
             return "FAILURE"
         if s != "NIL":
-            l1 = apply_subst_list(s, l1[i+1:])
-            l2 = apply_subst_list(s, l2[i+1:])
-            subst = compose_subst(s, subst)
             
+            l1[i+1:] = apply_subst_list(s, l1[i+1:])
+            l2[i+1:] = apply_subst_list(s, l2[i+1:])
+            subst = compose_subst(s, subst)
+
     return subst
 
 def is_variable(x):
@@ -44,13 +45,15 @@ def is_constant(x):
     return isinstance(x, str) and not is_variable(x)
 
 def is_var_or_const(x):
-    return not isinstance(x, tuple)
+    return not isinstance(x, tuple) and not isinstance(x, list)
 
 def occurs(var, expr):
     if var == expr:
         return True
     if isinstance(expr, tuple):
         return any(occurs(var, arg) for arg in expr[1])
+    if isinstance(expr, list):
+        return any(occurs(var, arg) for arg in expr)
     return False
 
 def get_predicate(expr):
@@ -67,6 +70,8 @@ def apply_subst_term(s, term):
     if isinstance(term, tuple):
         pred, args = term
         return (pred, [apply_subst_term(s, arg) for arg in args])
+    if isinstance(term, list):
+        return [apply_subst_term(s, item) for item in term]
     return term
 
 def apply_subst_list(s, lst):
@@ -78,3 +83,20 @@ def compose_subst(s, subst):
     new_subst = {k: apply_subst_term(s, v) for k, v in subst.items()}
     new_subst.update(s)
     return new_subst
+
+
+if __name__ == "__main__":
+   
+    term1 = ('P', ['x', ('f', ['y'])])
+    term2 = ('P', ['a', ('f', ['b'])])
+    
+    print("Test 1 Result:", unify(term1, term2))
+    
+   
+    term3 = ('P', ['x'])
+    term4 = ('P', [('f', ['x'])])
+    
+    print("Test 2 Result (Occurs Check):", unify(term3, term4))
+
+Test 1 Result: {'x': 'a', 'y': 'b'}
+Test 2 Result (Occurs Check): FAILURE
