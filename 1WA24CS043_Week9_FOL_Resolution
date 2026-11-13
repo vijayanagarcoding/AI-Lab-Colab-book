@@ -1,0 +1,144 @@
+
+
+def parse_literal(lit):
+    neg = lit.startswith('~')
+    if neg:
+        lit = lit[1:]
+    pred, args = lit.split('(')
+    args = args[:-1].split(',')
+    return (neg, pred.strip(), [a.strip() for a in args])
+
+def format_literal(lit_tuple):
+    neg, pred, args = lit_tuple
+    return f"{'~' if neg else ''}{pred}({','.join(args)})"
+
+def format_clause(clause):
+    if not clause:
+        return "NIL (Empty Clause)"
+    return " v ".join(format_literal(l) for l in clause)
+
+def is_variable(term):
+    return term[0].islower()
+
+def unify(x, y, subst=None):
+    if subst is None:
+        subst = {}
+    if x == y:
+        return subst
+    if isinstance(x, str) and is_variable(x):
+        return unify_var(x, y, subst)
+    if isinstance(y, str) and is_variable(y):
+        return unify_var(y, x, subst)
+    if isinstance(x, list) and isinstance(y, list) and len(x) == len(y):
+        for a, b in zip(x, y):
+            subst = unify(a, b, subst)
+            if subst is None:
+                return None
+        return subst
+    return None
+
+def unify_var(var, x, subst):
+    if var in subst:
+        return unify(subst[var], x, subst)
+    if isinstance(x, str) and x in subst:
+        return unify(var, subst[x], subst)
+    new_subst = subst.copy()
+    new_subst[var] = x
+    return new_subst
+
+def substitute(clause, subst):
+    new_clause = []
+    for neg, pred, args in clause:
+        new_args = []
+        for a in args:
+            while a in subst:
+                a = subst[a]
+            new_args.append(a)
+        lit = (neg, pred, new_args)
+        if lit not in new_clause:
+            new_clause.append(lit)
+    return new_clause
+
+def resolve(ci, cj):
+    resolvents = []
+    for i, li in enumerate(ci):
+        for j, lj in enumerate(cj):
+            if li[0] != lj[0] and li[1] == lj[1]:
+                subst = unify(li[2], lj[2])
+                if subst is not None:
+                    new_ci = ci[:i] + ci[i+1:]
+                    new_cj = cj[:j] + cj[j+1:]
+                    combined = substitute(new_ci + new_cj, subst)
+                    resolvents.append((combined, subst))
+    return resolvents
+
+def resolution(kb, query):
+    clauses = [[parse_literal(l) for l in c] for c in kb]
+    neg_query = [parse_literal(l) for l in query]
+    clauses.append(neg_query)
+
+    print("Initial Clauses in CNF:")
+    for idx, c in enumerate(clauses, 1):
+        print(f"{idx}. {format_clause(c)}")
+    print("-" * 50)
+
+    new_clauses = []
+    step = len(clauses) + 1
+
+    while True:
+        n = len(clauses)
+        for i in range(n):
+            for j in range(i + 1, n):
+                resolvents = resolve(clauses[i], clauses[j])
+                for res, subst in resolvents:
+                    if not res:
+                        print(f"{step}. {format_clause(res)}  [from {i+1} & {j+1}, subst: {subst}]")
+                        print("-" * 50)
+                        print("Result: Query Proven!")
+                        return True
+                    if res not in clauses and res not in new_clauses:
+                        print(f"{step}. {format_clause(res)}  [from {i+1} & {j+1}, subst: {subst}]")
+                        new_clauses.append(res)
+                        step += 1
+        if not new_clauses:
+            print("Result: Cannot prove query.")
+            return False
+        clauses.extend(new_clauses)
+        new_clauses = []
+
+kb = [
+    ["Mother(Leela, Oshin)"],
+    ["Alive(Leela)"],
+    ["~Mother(x, y)", "Parent(x, y)"],
+    ["~Parent(x, y)", "~Alive(x)", "Older(x, y)"]
+]
+
+negated_goal = ["~Older(Leela, Oshin)"]
+
+resolution(kb, negated_goal)
+
+-------------------------------------------------------------------------------------------------------------------------------
+Initial Clauses in CNF:
+1. Mother(Leela,Oshin)
+2. Alive(Leela)
+3. ~Mother(x,y) v Parent(x,y)
+4. ~Parent(x,y) v ~Alive(x) v Older(x,y)
+5. ~Older(Leela,Oshin)
+--------------------------------------------------
+6. Parent(Leela,Oshin)  [from 1 & 3, subst: {'x': 'Leela', 'y': 'Oshin'}]
+7. ~Parent(Leela,y) v Older(Leela,y)  [from 2 & 4, subst: {'x': 'Leela'}]
+8. ~Mother(x,y) v ~Alive(x) v Older(x,y)  [from 3 & 4, subst: {}]
+9. ~Parent(Leela,Oshin) v ~Alive(Leela)  [from 4 & 5, subst: {'x': 'Leela', 'y': 'Oshin'}]
+10. ~Alive(Leela) v Older(Leela,Oshin)  [from 1 & 8, subst: {'x': 'Leela', 'y': 'Oshin'}]
+11. ~Mother(Leela,y) v Older(Leela,y)  [from 2 & 8, subst: {'x': 'Leela'}]
+12. ~Parent(Leela,Oshin)  [from 2 & 9, subst: {}]
+13. ~Mother(Leela,Oshin) v ~Alive(Leela)  [from 3 & 9, subst: {'x': 'Leela', 'y': 'Oshin'}]
+14. Older(Leela,Oshin)  [from 6 & 7, subst: {'y': 'Oshin'}]
+15. ~Alive(Leela)  [from 6 & 9, subst: {}]
+16. ~Mother(Leela,Oshin)  [from 2 & 13, subst: {}]
+17. NIL (Empty Clause)  [from 2 & 15, subst: {}]
+--------------------------------------------------
+Result: Query Proven!
+True
+
+
